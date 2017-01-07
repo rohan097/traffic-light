@@ -4,44 +4,30 @@ import numpy as np
 import imutils
 import math
 
-ap = argparse.ArgumentParser()
-ap.add_argument("video", help = "path to the video file")
-args = vars(ap.parse_args())
+def setup(args):
 
-camera = cv2.VideoCapture(args['video'])
+    clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize = (8,8))
 
-clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize = (8,8))
+    avg = None
+    kernel1 = np.ones((1,1), np.uint8)
 
-avg = None
-kernel1 = np.ones((1,1), np.uint8)
+    if 'video1.avi' in args['video']:
+        kernel2 = np.ones((21,21), np.uint8)
+        kernel3 = np.ones((3,3), np.uint8)
+        weight = 0.805
+        dil_iter = 1
+        er_iter = 5
 
-if 'video1.avi' in args['video']:
-    kernel2 = np.ones((21,21), np.uint8)
-    kernel3 = np.ones((3,3), np.uint8)
-    weight = 0.805
-    dil_iter = 1
-    er_iter = 5
+    else:
+        kernel2 = np.ones((7,7),np.uint8) # 21,21
+        kernel3 = np.ones((1,1),np.uint8) # 3,3
+        weight = 0.47
+        dil_iter = 2
+        er_iter = 30
+    return clahe, avg, kernel1, kernel2, kernel3, weight, dil_iter, er_iter
 
-else:
-    kernel2 = np.ones((7,7),np.uint8) # 21,21
-    kernel3 = np.ones((1,1),np.uint8) # 3,3
-    weight = 0.47
-    dil_iter = 2
-    er_iter = 30
+def processing(args, frame, clahe, avg, kernel1, kernel2, kernel3, weight, dil_iter, er_iter):
 
-count_i = 0
-count_o = 0
-counts = 0
-iter_value = 0
-grabbed = True
-
-while 1:
-
-
-    grabbed, frame = camera.read()
-
-    if grabbed == False:
-        break
     if  'video1.avi' in args['video']:
         frame = frame[5:,75:]
 
@@ -61,8 +47,6 @@ while 1:
             avg = cv2.cvtColor(avg, cv2.COLOR_BGR2GRAY)
             avg = cv2.GaussianBlur(avg, (21,21), 0)
             avg = avg.astype(float)
-        continue
-        
     cv2.accumulateWeighted(gray, avg, weight) # Last value was actually 0.5, but the best value is 0.805
     frameDelta = cv2.absdiff(gray, cv2.convertScaleAbs(avg))
 
@@ -74,11 +58,14 @@ while 1:
     cv2.imshow('Thresh',thresh)
     cnts = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
+    return avg, frame, cnts
+
+def track(frame, cnts, count_i, count_o):
+
     cnts = cnts[1]
     counter = 0
     incoming = 0
     outgoing = 0
-
     for c in cnts:
         if not( 200 < cv2.contourArea(c) < 16000 ):
             continue
@@ -98,31 +85,46 @@ while 1:
             incoming +=1
 
         counter += 1
-
-#    for i in range(328):
-#        y =  250 - 0.714*i
-#        frame[y,i] = (255,0,0)
-
-    blob = clahe.apply(thresh)
     count_i = count_i + incoming
     count_o = count_o + outgoing
+    return count_i, count_o
 
-    if iter_value % 3 == 0:
+def counts(count_i, count_o):
+    count_i = count_i/3.0
+    count_o = count_o/3.0
+    print (math.ceil(count_i), math.ceil(count_o))
+    return count_i, count_o
 
-        count_i = count_i/3.0
-        count_o = count_o/3.0
-        #print ("Incoming: ", math.ceil(count_i))
-        #print ("Outgoing: ", math.ceil(count_o))
-        #print ("total: ", counter)
-        print (math.ceil(count_i), math.ceil(count_o))
-        counts = 0
-        count_i = 0
-        count_o = 0
+def main():
 
-    cv2.imshow('Traffic_Cam', frame)
-    key = cv2.waitKey(100) & 0xFF
-    if key == ord("q"):
-        break
-    iter_value += 1
-camera.release()
-cv2.destroyAllWindows()
+    ap = argparse.ArgumentParser()
+    ap.add_argument("video", help = "path to the video file")
+    args = vars(ap.parse_args())
+    count_i = 0
+    count_o = 0
+    iter_value = 0
+    clahe, avg, kernel1, kernel2, kernel3, weight, dil_iter, er_iter = setup(args)
+    camera = cv2.VideoCapture(args['video'])
+    while True:
+
+        grabbed, frame = camera.read()
+        if grabbed == False:
+            break
+        avg, frame, cnts = processing(args, frame, clahe, avg, kernel1, kernel2, kernel3, weight, dil_iter, er_iter)
+        count_i, count_o = track(frame, cnts, count_i, count_o )
+        if iter_value % 3 == 0:
+            counts(count_i, count_o)
+            count_i = 0
+            count_o = 0
+
+        cv2.imshow('Traffic_Cam', frame)
+        key = cv2.waitKey(100) & 0xFF
+        if key == ord("q"):
+            break
+        iter_value += 1
+
+    camera.release()
+    cv2.destroyAllWindows()
+
+if __name__ == '__main__':
+    main()

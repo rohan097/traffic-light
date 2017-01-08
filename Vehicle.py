@@ -27,7 +27,7 @@ def setup(args):
         er_iter = 30
     return clahe, avg, kernel1, kernel2, kernel3, weight, dil_iter, er_iter
 
-def processing(args, frame, clahe, avg, kernel1, kernel2, kernel3, weight, dil_iter, er_iter):
+def processing(args, frame, clahe, avg, kernel1, kernel2, kernel3, weight, dil_iter, er_iter, initial_frame):
 
     if  'video1.avi' in args['video']:
         frame = frame[5:,75:]
@@ -37,12 +37,11 @@ def processing(args, frame, clahe, avg, kernel1, kernel2, kernel3, weight, dil_i
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     gray = cv2.GaussianBlur(gray, (21,21),0)
 
-    if avg == None:
-        print ("[INFO] starting background model.....")
+    if initial_frame:
         if 'video1.avi' not in args['video']:
             avg = gray.copy().astype("float")
         else:
-            avg = cv2.imread('Ba1.jpg')
+            avg = cv2.imread('/home/rohan/GDG/Ba1.jpg')
             avg = avg[35:,75:]
             avg = imutils.resize(avg, width = 500)
             avg = cv2.cvtColor(avg, cv2.COLOR_BGR2GRAY)
@@ -109,14 +108,17 @@ def main():
     iter_value = 0
     clahe, avg, kernel1, kernel2, kernel3, weight, dil_iter, er_iter = setup(args)
     camera = cv2.VideoCapture(args['video'])
+
     file_name = "Camera %s" %args['feed']
     obj = open(file_name, "wb")
+
+    initial_frame = True
     while True:
 
         grabbed, frame = camera.read()
         if grabbed == False:
             break
-        avg, frame, cnts = processing(args, frame, clahe, avg, kernel1, kernel2, kernel3, weight, dil_iter, er_iter)
+        avg, frame, cnts = processing(args, frame, clahe, avg, kernel1, kernel2, kernel3, weight, dil_iter, er_iter, initial_frame)
         count_i, count_o = track(frame, cnts, count_i, count_o )
         if iter_value % 3 == 0:
             counts(count_i, count_o, obj)
@@ -128,6 +130,7 @@ def main():
         if key == ord("q"):
             break
         iter_value += 1
+        initial_frame = False
 
     obj.close()
     camera.release()

@@ -3,6 +3,7 @@ import argparse
 import numpy as np
 import imutils
 import math
+import pickle
 
 def setup(args):
 
@@ -89,22 +90,27 @@ def track(frame, cnts, count_i, count_o):
     count_o = count_o + outgoing
     return count_i, count_o
 
-def counts(count_i, count_o):
+def counts(count_i, count_o, obj):
     count_i = count_i/3.0
     count_o = count_o/3.0
     print (math.ceil(count_i), math.ceil(count_o))
-    return count_i, count_o
+    a = {}
+    a['feed'] = [math.ceil(count_i), math.ceil(count_o)]
+    pickle.dump(a, obj)
 
 def main():
 
     ap = argparse.ArgumentParser()
     ap.add_argument("video", help = "path to the video file")
+    ap.add_argument("feed")
     args = vars(ap.parse_args())
     count_i = 0
     count_o = 0
     iter_value = 0
     clahe, avg, kernel1, kernel2, kernel3, weight, dil_iter, er_iter = setup(args)
     camera = cv2.VideoCapture(args['video'])
+    file_name = "Camera %s" %args['feed']
+    obj = open(file_name, "wb")
     while True:
 
         grabbed, frame = camera.read()
@@ -113,7 +119,7 @@ def main():
         avg, frame, cnts = processing(args, frame, clahe, avg, kernel1, kernel2, kernel3, weight, dil_iter, er_iter)
         count_i, count_o = track(frame, cnts, count_i, count_o )
         if iter_value % 3 == 0:
-            counts(count_i, count_o)
+            counts(count_i, count_o, obj)
             count_i = 0
             count_o = 0
 
@@ -123,6 +129,7 @@ def main():
             break
         iter_value += 1
 
+    obj.close()
     camera.release()
     cv2.destroyAllWindows()
 

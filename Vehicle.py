@@ -88,7 +88,7 @@ def track(frame, cnts, count_i, count_o):
     count_o = count_o + outgoing
     return count_i, count_o
 
-def counts(count_i, count_o, obj):
+def counts(count_i, count_o):
     count_i = count_i/3.0
     count_o = count_o/3.0
     print (math.ceil(count_i), math.ceil(count_o))

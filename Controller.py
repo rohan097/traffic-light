@@ -74,7 +74,8 @@ def runCycle():
     for i in ind:
 
         if(vCount[iter] == 0):
-            continue
+            pass
+            #continue
 
         tl[i]  = 2                          #Green
         tl[(i+1)%4] = 0                     #make others red
@@ -93,7 +94,7 @@ def runCycle():
         tl[ind[(iter+1)%4]] = 1
         print('YELLOW for' , ind[(iter+1)%4])
 
-        print('wait for 4 more seconds...')
+        print('wait for 6 more seconds...')
         time.sleep(4)
         iter = (iter+1)%4
     cycleCompleted = 1

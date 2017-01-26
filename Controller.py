@@ -3,7 +3,9 @@ from subprocess import Popen
 import shlex
 import sys
 import time
+import RPi.GPIO as GPIO
 
+GPIO.setmode(GPIO.BCM)
 
 command1 = 'unbuffer python3 /home/rohan/traffic-light/Vehicle.py "/home/rohan/GDG/video2.avi" 1'
 command2 = 'unbuffer python3 /home/rohan/traffic-light/Vehicle.py "/home/rohan/GDG/video2.avi" 2'
@@ -17,6 +19,10 @@ ind = [0,1,2,3]
 multifac = 4
 tl = [0,0,0,0]
 vCount = [4, 2 , 0 , 0]
+lane1 = [2,3,4]
+lane2 = [17,27,22]
+lane3= [10,9,11]
+lane4= [0,5,6]
 
 def run_command():
 
@@ -66,6 +72,20 @@ def fillQueue():
             if( vCount[j]  > vCount[j-1]):
                 swap( vCount, j, j - 1 )
                 swap(ind,j,j-1)
+                
+def switchLight(temp, colour, state):
+	laneDict = {1:lane1, 2:lane2, 3:lane3, 4:lane4 }
+	colourDict =  { 'R':0, 'Y':1, 'G':2}
+	lane = laneDict[temp]
+	if state == "OFF":
+		#print lane[colourDict[colour]], "LOW"
+		GPIO.output(lane[colourDict[colour]],GPIO.LOW)	
+	elif state == "ON":
+		#print lane[colourDict[colour]], "HIGH"
+		GPIO.output(lane[colourDict[colour]],GPIO.HIGH)
+	else:
+		print "Invalid State"
+		exit(1)
 
 def runCycle():
     cycleCompleted = 0
@@ -88,18 +108,34 @@ def runCycle():
 
         print('GREEN for ',i,' RED for others')
         print ('wait for', readyTime ,'seconds...')
-
+        
+        switchLight(i,'R',"OFF")
+        switchLight(i,'G',"ON")
+        
         time.sleep(readyTime)                       #time for yellow is  6 secs
-
+        
+        switchLight(i,'G',"OFF")
+        
         tl[ind[(iter+1)%4]] = 1
         print('YELLOW for' , ind[(iter+1)%4])
-
+        
+        switchLight(i,'G',"OFF")
+        
         print('wait for 6 more seconds...')
+        switchLight(i,'Y',"ON")
+        
         time.sleep(4)
+        
+        switchLight(i,'Y',"OFF")
+        switchLight(i,'R',"ON")
+        
         iter = (iter+1)%4
     cycleCompleted = 1
 
+
 def main():
+    for i in lane1+lane2+lane3+lane4:
+	    GPIO.setup(i,GPIO.OUT)
     run_command()
 
 if __name__ == '__main__':

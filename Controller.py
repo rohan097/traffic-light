@@ -81,7 +81,6 @@ def runCycle():
         sleepTime = max(20, multifac*vCount[iter])  #minimum Green time 20 secs
         sleepTime = min(sleepTime, 120)             #max green time 2 minutes
         readyTime = sleepTime  - 6
-
         print('GREEN for ',i,' RED for others')
         print ('wait for', readyTime ,'seconds...')
 

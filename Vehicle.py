@@ -3,10 +3,9 @@ import argparse
 import numpy as np
 import imutils
 import math
-
 def setup(args):
 
-    clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize = (8,8))
+    #clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize = (8,8))
 
     avg = None
     kernel1 = np.ones((1,1), np.uint8)
@@ -24,9 +23,9 @@ def setup(args):
         weight = 0.47
         dil_iter = 2
         er_iter = 30
-    return clahe, avg, kernel1, kernel2, kernel3, weight, dil_iter, er_iter
+    return avg, kernel1, kernel2, kernel3, weight, dil_iter, er_iter
 
-def processing(args, frame, clahe, avg, kernel1, kernel2, kernel3, weight, dil_iter, er_iter, initial_frame):
+def processing(args, frame, avg, kernel1, kernel2, kernel3, weight, dil_iter, er_iter, initial_frame):
 
     if  'video1.avi' in args['video']:
         frame = frame[5:,75:]
@@ -102,7 +101,7 @@ def main():
     count_i = 0
     count_o = 0
     iter_value = 0
-    clahe, avg, kernel1, kernel2, kernel3, weight, dil_iter, er_iter = setup(args)
+    avg, kernel1, kernel2, kernel3, weight, dil_iter, er_iter = setup(args)
     camera = cv2.VideoCapture(args['video'])
 
     initial_frame = True
@@ -111,7 +110,7 @@ def main():
         grabbed, frame = camera.read()
         if grabbed == False:
             break
-        avg, frame, cnts = processing(args, frame, clahe, avg, kernel1, kernel2, kernel3, weight, dil_iter, er_iter, initial_frame)
+        avg, frame, cnts = processing(args, frame, avg, kernel1, kernel2, kernel3, weight, dil_iter, er_iter, initial_frame)
         count_i, count_o = track(frame, cnts, count_i, count_o )
         if iter_value % 3 == 0:
             counts(count_i, count_o)

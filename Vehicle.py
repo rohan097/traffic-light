@@ -8,7 +8,7 @@ def setup(args):
     #clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize = (8,8))
 
     avg = None
-    kernel1 = np.ones((1,1), np.uint8)
+    kernel1 = np.ones((3,3), np.uint8)
 
     if 'video1.avi' in args['video']:
         kernel2 = np.ones((21,21), np.uint8)
@@ -50,10 +50,9 @@ def processing(args, frame, avg, kernel1, kernel2, kernel3, weight, dil_iter, er
 
     blob = cv2.threshold(frameDelta,5,255,cv2.THRESH_BINARY_INV)[1]
     thresh = cv2.threshold(frameDelta,5,255,cv2.THRESH_BINARY)[1]
+    thresh = cv2.erode(thresh, kernel3, iterations = 6)
     thresh = cv2.dilate(thresh, kernel1, iterations = dil_iter)
     thresh = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, kernel2, iterations = 1)# Originally this is not there
-    thresh = cv2.erode(thresh, kernel3, iterations = er_iter)
-    cv2.imshow('Thresh',thresh)
     cnts = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
     return avg, frame, cnts

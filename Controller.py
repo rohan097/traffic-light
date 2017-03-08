@@ -38,6 +38,8 @@ def run_command():
             inc2 = list(map(int, (output2.decode("utf-8")).strip().split()))[0]
             inc3 = list(map(int, (output3.decode("utf-8")).strip().split()))[0]
             inc4 = list(map(int, (output4.decode("utf-8")).strip().split()))[0]
+        vCount = [inc1, inc2, inc3, inc4]
+        print (vCount)
         getCount()
         fillQueue()
         runCycle()
@@ -84,7 +86,8 @@ def runCycle():
         print('GREEN for ',i,' RED for others')
         print ('wait for', readyTime ,'seconds...')
 
-        time.sleep(readyTime)                       #time for yellow is  6 secs
+        #time.sleep(readyTime)                       #time for yellow is  6 secs
+        time.sleep(1)   # WE NEED TO REMOVE THIS LINE AND UNCOMMENT THE PREVIOUS LINE
 
         tl[ind[(iter+1)%4]] = 1
         print('YELLOW for' , ind[(iter+1)%4])

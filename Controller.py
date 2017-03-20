@@ -83,7 +83,7 @@ def switchLight(temp, colour, state):
 	lane = laneDict[temp]
 	if state == "OFF":
 		#print lane[colourDict[colour]], "LOW"
-		GPIO.output(lane[colourDict[colour]],GPIO.LOW)	
+		GPIO.output(lane[colourDict[colour]],GPIO.LOW)
 	elif state == "ON":
 		#print lane[colourDict[colour]], "HIGH"
 		GPIO.output(lane[colourDict[colour]],GPIO.HIGH)
@@ -123,12 +123,12 @@ def runCycle():
         switchLight(i,'G',"OFF")
 
         print('wait for 6 more seconds...')
-
-        switchLight(i,'Y',"ON")
+        switchLight(ind[(iter+1)%4], 'Y',"ON")
+        #switchLight(i,'Y',"ON")
 
         time.sleep(4)
 
-        switchLight(i,'Y',"OFF")
+        switchLight(ind[(iter+1)%4],'Y',"OFF")
         switchLight(i,'R',"ON")
 
         iter = (iter+1)%4

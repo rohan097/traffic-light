@@ -7,10 +7,11 @@ import RPi.GPIO as GPIO
 
 GPIO.setmode(GPIO.BCM)
 
-command1 = 'unbuffer python3 /home/pi/traffic/Vehicle.py "/home/pi/traffic/video2.avi" 1'
-command2 = 'unbuffer python3 /home/pi/traffic/Vehicle.py "/home/pi/traffic/video2.avi" 2'
-command3 = 'unbuffer python3 /home/pi/traffic/Vehicle.py "/home/pi/traffic/video2.avi" 3'
-command4 = 'unbuffer python3 /home/pi/traffic/Vehicle.py "/home/pi/traffic/video2.avi" 4'
+command1 = 'unbuffer python3 /home/rohan/traffic-light/Vehicle.py "/home/rohan/GDG/video2.avi" 1'
+command2 = 'unbuffer python3 /home/rohan/traffic-light/Vehicle.py "/home/rohan/GDG/video2.avi" 2'
+command3 = 'unbuffer python3 /home/rohan/traffic-light/Vehicle.py "/home/rohan/GDG/video2.avi" 3'
+command4 = 'unbuffer python3 /home/rohan/traffic-light/Vehicle.py "/home/rohan/GDG/video2.avi" 4'
+
 inc1 = 0
 inc2 = 0
 inc3 = 0
@@ -37,13 +38,13 @@ def run_command():
         output2 = process2.stdout.readline()
         output3 = process3.stdout.readline()
         output4 = process4.stdout.readline()
-        if (output1 == '' or output2 == '' or output3 == '' or output4 == '') and ((process1.poll() is not None) or (process2.poll() is not None) or(process3.poll() is not None) or(process4.poll() is not None)):
-            break
+
         if output1 or output2 or output3 or output4:
             inc1 = list(map(int, (output1.decode("utf-8")).strip().split()))[0]
             inc2 = list(map(int, (output2.decode("utf-8")).strip().split()))[0]
             inc3 = list(map(int, (output3.decode("utf-8")).strip().split()))[0]
             inc4 = list(map(int, (output4.decode("utf-8")).strip().split()))[0]
+
         vCount = [inc1, inc2, inc3, inc4]
         print (vCount)
         getCount()

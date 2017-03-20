@@ -4,7 +4,6 @@ import shlex
 import sys
 import time
 
-
 command1 = 'unbuffer python3 /home/rohan/traffic-light/Vehicle.py "/home/rohan/GDG/video2.avi" 1'
 command2 = 'unbuffer python3 /home/rohan/traffic-light/Vehicle.py "/home/rohan/GDG/video2.avi" 2'
 command3 = 'unbuffer python3 /home/rohan/traffic-light/Vehicle.py "/home/rohan/GDG/video2.avi" 3'
@@ -31,13 +30,12 @@ def run_command():
         output3 = process3.stdout.readline()
         output4 = process4.stdout.readline()
 
-        if (output1 == '' or output2 == '' or output3 == '' or output4 == '') and ((process1.poll() is not None) or (process2.poll() is not None) or(process3.poll() is not None) or(process4.poll() is not None)):
-            break
         if output1 or output2 or output3 or output4:
             inc1 = list(map(int, (output1.decode("utf-8")).strip().split()))[0]
             inc2 = list(map(int, (output2.decode("utf-8")).strip().split()))[0]
             inc3 = list(map(int, (output3.decode("utf-8")).strip().split()))[0]
             inc4 = list(map(int, (output4.decode("utf-8")).strip().split()))[0]
+
         vCount = [inc1, inc2, inc3, inc4]
         print (vCount)
         getCount()
@@ -86,8 +84,7 @@ def runCycle():
         print('GREEN for ',i,' RED for others')
         print ('wait for', readyTime ,'seconds...')
 
-        #time.sleep(readyTime)                       #time for yellow is  6 secs
-        time.sleep(1)   # WE NEED TO REMOVE THIS LINE AND UNCOMMENT THE PREVIOUS LINE
+        time.sleep(readyTime)                       #time for yellow is  6 secs
 
         tl[ind[(iter+1)%4]] = 1
         print('YELLOW for' , ind[(iter+1)%4])
